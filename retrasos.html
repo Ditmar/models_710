@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="examples.css">
+    <script src="Tanglekit/js/jquery-2.1.1.js"></script>
+    <script src="Tanglekit/js/Tangle.js"></script>
+    <script src="Tanglekit/js/Plot.js"></script>
+    <script src="Tanglekit/js/Chart.min.js"></script>
+    <script src="Tanglekit/js/jquery.flot.js"></script>
+    <!-- TangleKit -->
+    <link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+    <script type="text/javascript" src="TangleKit/mootools.js"></script>
+    <script type="text/javascript" src="TangleKit/sprintf.js"></script>
+    <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+    <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+    <script>
+        jQuery(document).ready(function ($) {
+            //1, 0.5, 0.25, 0.125, 0.0625
+            var model = {
+                initialize: function () {
+                    this.indexstep = 0;
+                    this.step = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
+                    this.time = 30;
+                    this.promocion = 0;
+                    this.ventas0 = 0;
+                    this.tr = 10;
+                    this.precio = 500;
+                    this.inicioPromocion = 4;
+                    this.finalPromocion = 7;
+                    this.minprecio = 250;
+                },
+                //delay significa retraso
+                delay: function(input, delayTime, time, limit = 0) {
+                    return -Math.pow(Math.E, (- (time -  limit)/delayTime)) * input + input;
+                },
+                update: function () {
+                    this.ventas = this.ventas0;
+                    this.points = [];
+                    this.points2 = [];
+                    for (var t = 0; t < this.time; t += this.step[Number(this.indexstep)]) {
+                        this.points2.push([t, this.ventas]);
+                        this.points.push([t, this.precio]);
+                        if (t >= this.inicioPromocion  && t <= this.finalPromocion) {
+                            this.precio = this.minprecio;
+                            this.ventas += this.delay((3000-3 * this.precio) / 100,  this.tr, t, this.inicioPromocion) * this.step[Number(this.indexstep)];
+                        } else {
+                            this.precio = 500;
+                            this.ventas += this.delay((3000-3 * this.precio) / 100,  this.tr, t, this.inicioPromocion) * this.step[Number(this.indexstep)];
+                            //this.ventas += (3000-3 * this.precio) / 100 * this.step[Number(this.indexstep)];
+                        }
+                        
+                    }
+                    this.points2.push([t, this.xx]);
+                    this.points.push([t, this.precio]);
+                    var options = {
+                        color: "#ffffff",
+                        series: {
+                            lines: { show: true },
+                            points: { show: false }
+                        },
+                        legend: {
+                            show: true,
+                            position: "ne"
+                        }
+                    };
+                    $.plot("#canvas1", [ { data: this.points2, label: "Ventas" }, { data: this.points, label: "Precio" }], options);
+                    //$.plot("#canvas2", [{data : this.points, label:"Sol general"}], options);
+
+                }
+            };
+            var elemento = document.getElementById("visual");
+            new Tangle(elemento, model)
+        });
+    </script>
+</head>
+
+<body>
+    <div id="visual">
+        Time = <span data-var="time" class="TKAdjustableNumber" data-min="0" data-max="100" data-step="1"></span>
+        inicioPromocion = <span data-var="inicioPromocion" class="TKAdjustableNumber" data-min="0" data-max="30" data-step="1"></span>
+        finalPromocion = <span data-var="finalPromocion" class="TKAdjustableNumber" data-min="0" data-max="30" data-step="1"></span>
+        minprecio = <span data-var="minprecio" class="TKAdjustableNumber" data-min="0" data-max="300" data-step="1"></span>
+        tr = <span data-var="tr" class="TKAdjustableNumber" data-min="0" data-max="300" data-step="1"></span>
+        
+    </div>
+    <div id="canvas1"></div>
+    <div id="result">
+
+    </div>
+</body>
+
+</html>

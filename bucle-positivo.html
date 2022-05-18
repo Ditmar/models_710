@@ -18,29 +18,37 @@
     <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
     <script>
         jQuery(document).ready(function ($) {
+            //1, 0.5, 0.25, 0.125, 0.0625
             var model = {
                 initialize: function () {
-                    this.step = 1;
-                    this.tiempo = 10;
+                    this.indexstep = 0;
+                    this.step = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125];
+                    this.timef = 2001;
+                    this.time0 = 2000;
+                    this.x0 = 0.93;
+                    this.k = 0.0225;
                 },
                 update: function () {
+                    this.x = this.x0;
                     this.points = [];
-                    for (var t = 0; t < this.tiempo; t += this.step) {
-                        this.points.push([t, 1]);
+                    for (var t = this.time0; t < this.timef; t += this.step[Number(this.indexstep)]) {
+                        this.points.push([t, this.x]);
+                        this.x += (this.x * this.k) * this.step[Number(this.indexstep)];
                     }
-                    $("#r").html(this.xs);
+                    this.points.push([t, this.x]);
+                    $("#result").html(`Temperatura final ${this.x}`);
                     var options = {
                         color: "#ffffff",
                         series: {
                             lines: { show: true },
-                            points: { show: true }
+                            points: { show: false }
                         },
                         legend: {
                             show: true,
                             position: "ne"
                         }
                     };
-                    $.plot("#canvas1", [{ data: this.points, label: "test" }], options);
+                    $.plot("#canvas1", [{ data: this.points, label: "Crecimiento Positivo" }], options);
                     //$.plot("#canvas2", [{data : this.points, label:"Sol general"}], options);
 
                 }
@@ -53,10 +61,14 @@
 
 <body>
     <div id="visual">
-        Tiempo = <span data-var="tiempo" class="TKAdjustableNumber" data-min="0" data-max="100" data-step="1"></span>
-
+        Time = <span data-var="timef" class="TKAdjustableNumber" data-min="2000" data-max="3001" data-step="1"></span>
+        K = <span data-var="k" class="TKAdjustableNumber" data-min="0" data-max="1" data-step="0.01"></span>
+        X0 = <span data-var="x0" class="TKAdjustableNumber" data-min="0" data-max="100" data-step="1"></span>
     </div>
     <div id="canvas1"></div>
+    <div id="result">
+
+    </div>
 </body>
 
 </html>

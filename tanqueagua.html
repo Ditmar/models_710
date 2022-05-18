@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="examples.css">
+    <script src="Tanglekit/js/jquery-2.1.1.js"></script>
+    <script src="Tanglekit/js/Tangle.js"></script>
+    <script src="Tanglekit/js/Plot.js"></script>
+    <script src="Tanglekit/js/Chart.min.js"></script>
+    <script src="Tanglekit/js/jquery.flot.js"></script>
+    <!-- TangleKit -->
+    <link rel="stylesheet" href="TangleKit/TangleKit.css" type="text/css">
+    <script type="text/javascript" src="TangleKit/mootools.js"></script>
+    <script type="text/javascript" src="TangleKit/sprintf.js"></script>
+    <script type="text/javascript" src="TangleKit/BVTouchable.js"></script>
+    <script type="text/javascript" src="TangleKit/TangleKit.js"></script>
+    <script>
+        jQuery(document).ready(function ($) {
+            //1, 0.5, 0.25, 0.125, 0.0625
+            var model = {
+                initialize: function () {
+                    this.indexstep = 1;
+                    this.step = [1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625];
+                    this.time = 500;
+                    this.y0 = 4;
+                    this.diametro = 1 ;
+                },
+                update: function () {
+                    this.y = this.y0;
+                    this.altura = this.altura0;
+                    this.volumen = [];
+                    this.pointsAltura = [];
+                    this.area = Math.pow((this.diametro / 2 ) * (1/12), 2);
+                    for (var t = 0; t < this.time; t += this.step[Number(this.indexstep)]) {
+                        this.pointsAltura.push([t, this.y]);
+                        this.y += - (this.area * (8 * Math.sqrt(this.y)/ (8 * this.y - this.y * this.y))) * this.step[this.indexstep];
+                    }
+                    this.pointsAltura.push([t, this.y]);
+                    $("#result").html(`altura  ${this.velocidad} pies <br> altura = ${this.y}`);
+                    var options = {
+                        color: "#ffffff",
+                        series: {
+                            lines: { show: true },
+                            points: { show: false }
+                        },
+                        legend: {
+                            show: true,
+                            position: "ne"
+                        }
+                    };
+                    $.plot("#canvas1", [{ data: this.pointsAltura, label: "Altura" }], options);
+
+                }
+            };
+            var elemento = document.getElementById("visual");
+            new Tangle(elemento, model)
+        });
+    </script>
+</head>
+
+<body>
+    <div id="visual">
+        Time = <span data-var="time" class="TKAdjustableNumber" data-min="0" data-max="2500" data-step="1"></span> segundos
+        indexstep = <span data-var="indexstep" class="TKAdjustableNumber" data-min="0" data-max="7" data-step="1"></span> 
+        diametro = <span data-var="diametro" class="TKAdjustableNumber" data-min="0.5" data-max="100" data-step="1"></span> pulgadas
+    </div>
+    <div id="canvas1"></div>
+    <div id="result">
+
+    </div>
+</body>
+
+</html>
